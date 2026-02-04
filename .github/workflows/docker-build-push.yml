@@ -35,11 +35,11 @@ jobs:
           
       - name: Login to Docker Hub
         run: |
-          echo $DOCKERHUB_TOKEN | docker login docker.io --username $DOCKERHUB_USERNAME --password-stdin
-
+          echo $DOCKERHUB_TOKEN | docker login --username "$DOCKERHUB_USERNAME" --password-stdin docker.io
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
 
       - name: Build Docker image
         run: |
