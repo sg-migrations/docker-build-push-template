@@ -32,11 +32,6 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Debug DNS
-        run: |
-          nslookup registry-1.docker.io
-          ping -c 2 registry-1.docker.io
-
           
       - name: Login to Docker Hub
         run: |
