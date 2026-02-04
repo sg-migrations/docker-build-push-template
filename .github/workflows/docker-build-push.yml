@@ -43,8 +43,6 @@ jobs:
           format: table
           ignore-unfixed: true
           exit-code: 1
-
-
       - name: Push Docker image
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.image_name }}:${{ inputs.image_tag }}
