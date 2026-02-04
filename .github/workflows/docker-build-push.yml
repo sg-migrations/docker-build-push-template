@@ -1,4 +1,4 @@
-name: Build & Push Docker Image
+name: Build & Push Docker Image to Docker Hub
 
 on:
   workflow_call:
@@ -14,6 +14,7 @@ on:
         required: true
       DOCKERHUB_TOKEN:
         required: true
+
 
 jobs:
   build-scan-push:
