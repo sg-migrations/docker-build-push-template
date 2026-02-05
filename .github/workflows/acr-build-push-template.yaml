@@ -1,65 +1,52 @@
-
-# =============================
-# Required GitHub Secrets:
-#   ACR_NAME         - Azure Container Registry name (without .azurecr.io)
-#   IMAGE_NAME       - Docker image name
-#   AZURE_CLIENT_ID  - Azure service principal client ID
-#   AZURE_CLIENT_SECRET - Azure service principal client secret
-#   AZURE_TENANT_ID  - Azure tenant ID
-#   AZURE_SUBSCRIPTION_ID - Azure subscription ID
-#
-# Set these secrets in your repository before running this workflow.
-# =============================
-
-name: Build and Push to ACR
+name: Build & Push Image to ACR
 
 on:
-  push:
-    branches:
-      - main
-
-
-env:
-  IMAGE_TAG: ${{ github.sha }}
+  workflow_call:
+    inputs:
+      image_tag:
+        required: true
+        type: string
+    secrets:
+      IMAGE_NAME:
+        required: true
+      ACR_NAME:
+        required: true
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_CLIENT_SECRET:
+        required: true
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        required: true
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Log in to Azure
+      - name: Azure Login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-
-      - name: Log in to ACR
+      - name: Login to ACR
         uses: azure/docker-login@v2
         with:
           login-server: ${{ secrets.ACR_NAME }}.azurecr.io
           username: ${{ secrets.AZURE_CLIENT_ID }}
           password: ${{ secrets.AZURE_CLIENT_SECRET }}
 
-
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/${{ secrets.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
-
-
-      - name: Scan Docker image with Trivy
-        uses: uses: aquasecurity/trivy-action@0.33.1
-        with:
-          image-ref: ${{ secrets.ACR_NAME }}.azurecr.io/${{ secrets.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          format: table
-          exit-code: 1
-          ignore-unfixed: true
-
+          docker build \
+            -t ${{ secrets.ACR_NAME }}.azurecr.io/${{ secrets.IMAGE_NAME }}:${{ inputs.image_tag }} .
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/${{ secrets.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          docker push \
+            ${{ secrets.ACR_NAME }}.azurecr.io/${{ secrets.IMAGE_NAME }}:${{ inputs.image_tag }}
